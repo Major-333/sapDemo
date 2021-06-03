@@ -1,0 +1,34 @@
+version: '3'
+services:
+  db:
+    image: postgres:13-alpine
+    restart: always
+    volumes:
+      - "./.persistence/db:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SECRET_KEY=EatingOurOwnCatFood
+      - DEBUG=1
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+    command: ["python", "main.py"]
+    user: "${USER_ID}:${GROUP_ID}"
+    volumes:
+      - "./SAPApp:/code/SAPApp:rw"
+    ports:
+      - 8000:8000
+      - 25:25
+    depends_on:
+      - db
